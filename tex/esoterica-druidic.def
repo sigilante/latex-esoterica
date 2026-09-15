@@ -1,0 +1,40 @@
+%% esoterica-druidic.def -- Druidry
+%% Copyright (c) 2026 Sigilante. Released under the MIT License; see LICENSE.
+%%
+%% Glyphs are drawn on a grid with x from 0 to width and y from 0 to 1.
+%% Strokes inherit the package line width; see the manual for conventions.
+\ProvidesFile{esoterica-druidic.def}[2026-09-13 v0.1.0 esoterica: Druidry]
+
+\DeclareEsotericTradition{druidic}{
+  name   = Druidry,
+  prefix = Druid,
+}
+
+\DeclareEsotericGlyph{druidic}{Awen}{
+  description = {Awen: three rays beneath three points},
+  draw = {
+    % rays taper to a point at the top
+    \fill (0.45,0.06) -- (0.55,0.06) -- (0.5,0.68) -- cycle;
+    \fill (0.1147,0.0811) -- (0.2053,0.0389) -- (0.44,0.66) -- cycle;
+    \fill (0.7947,0.0389) -- (0.8853,0.0811) -- (0.56,0.66) -- cycle;
+    \fill (0.35,0.83) circle[radius=0.055];
+    \fill (0.5,0.88) circle[radius=0.055];
+    \fill (0.65,0.83) circle[radius=0.055];
+  },
+}
+
+\DeclareEsotericGlyph{druidic}{Triquetra}{
+  description = {Triquetra of three interlaced vesicae},
+  draw = {
+    % Each leaf is a vesica of two 120-degree arcs of radius 0.3, pointing
+    % outward at angle \t; its inner tip overshoots the centre by 0.15.
+    \begin{scope}[shift={(0.5,0.49)}]
+      \foreach \t in {90,210,330}
+        \draw ([shift={(\t+180:0.15)}]0,0)
+          arc[start angle=\t+210, end angle=\t+330, radius=0.3]
+          arc[start angle=\t+30, end angle=\t+150, radius=0.3] -- cycle;
+    \end{scope}
+  },
+}
+
+\endinput

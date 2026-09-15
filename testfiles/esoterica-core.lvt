@@ -1,0 +1,85 @@
+\input{regression-test}
+\documentclass{article}
+\usepackage{esoterica}
+
+\newcommand\showmetrics[1]{%
+  \setbox0=\hbox{#1}%
+  \TYPE{wd=\the\wd0, ht=\the\ht0, dp=\the\dp0}%
+}
+
+\START
+
+\TEST{registry}{
+  \TYPE{\IfEsotericGlyphTF{masonic/SquareAndCompasses}{yes}{no}}
+  \TYPE{\IfEsotericGlyphTF{masonic/Nope}{yes}{no}}
+}
+
+\TEST{metrics}{
+  \showmetrics{\eso{masonic/SquareAndCompasses}}
+  \showmetrics{\eso[scale=2]{masonic/SquareAndCompasses}}
+  \showmetrics{\eso{goldendawn/Hexagram}}
+  \showmetrics{\eso[color=red]{goldendawn/Hexagram}}
+  \showmetrics{\eso[cache=false]{goldendawn/Hexagram}}
+}
+
+\TEST{generated commands}{
+  \showmetrics{\MasonicLevel}
+  \showmetrics{\MasonicLevel[scale=2]}
+  % As with \newcommand, a bracket after a space still starts the options.
+  \showmetrics{\MasonicLevel [not an option]}
+}
+
+\TEST{math mode}{
+  \showmetrics{$\MasonicLevel$}
+  \showmetrics{$x^{\MasonicLevel}$}
+}
+
+\TEST{user tradition}{
+  \DeclareEsotericTradition{test}{name=Test, prefix=Test}
+  \DeclareEsotericGlyph{test}{Bar}{width=0.5, draw={\draw (0.25,0) -- (0.25,1);}}
+  \showmetrics{\TestBar}
+}
+
+\TEST{existing command is not clobbered}{
+  \gdef\TestBaz{kept}
+  \DeclareEsotericGlyph{test}{Baz}{draw={\draw (0,0) -- (1,1);}}
+  \TYPE{\TestBaz}
+}
+
+\TEST{redefinition}{
+  \DeclareEsotericGlyph{test}{Bar}{width=2, draw={\draw (0,0) -- (2,1);}}
+  \showmetrics{\TestBar}
+}
+
+\TEST{unknown glyph}{
+  \showmetrics{\eso{masonic/Nope}}
+}
+
+\TEST{unknown tradition}{
+  \DeclareEsotericGlyph{nope}{X}{}
+}
+
+\TEST{glyph with nothing to render}{
+  \DeclareEsotericGlyph{test}{Empty}{}
+  \showmetrics{\eso{test/Empty}}
+}
+
+\TEST{scripts}{
+  \showmetrics{\eso{masonic/RoyalArchA}}
+  \showmetrics{\esotericascript{royalarch}{Ab}}
+  \showmetrics{\esotericascript{royalarch}{a b}}
+  \showmetrics{\esotericascript[scale=2]{royalarch}{AB}}
+  \showmetrics{\esotericascript{royalarch}{A!}}
+}
+
+\TEST{unknown script}{
+  \esotericascript{nope}{A}
+}
+
+\TEST{right-to-left script}{
+  \showmetrics{\esotericascript[direction=rtl]{royalarch}{AB C}}
+  \showmetrics{\esotericascript{enochian}{Madriax}}
+  \showmetrics{\esotericascript[direction=rtl]{enochian}{Madriax}}
+}
+
+\END

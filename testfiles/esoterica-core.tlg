@@ -1,0 +1,119 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: registry
+============================================================
+yes
+no
+============================================================
+============================================================
+TEST 2: metrics
+============================================================
+wd=9.19998pt, ht=7.20001pt, dp=0.80002pt
+wd=18.39996pt, ht=14.40002pt, dp=1.60004pt
+wd=8.39992pt, ht=7.20001pt, dp=0.80002pt
+wd=8.39992pt, ht=7.20001pt, dp=0.80002pt
+wd=8.39992pt, ht=7.20001pt, dp=0.80002pt
+============================================================
+============================================================
+TEST 3: generated commands
+============================================================
+wd=9.19998pt, ht=7.20001pt, dp=0.80002pt
+wd=18.39996pt, ht=14.40002pt, dp=1.60004pt
+! LaTeX Error: The key 'esoterica/not an option' is unknown and is being ignored.
+For immediate help type H <return>.
+ ...                                              
+l. ...}
+The module 'esoterica' does not have a key called 'esoterica/not an option'.
+Check that you have spelled the key name correctly.
+wd=9.19998pt, ht=7.20001pt, dp=0.80002pt
+============================================================
+============================================================
+TEST 4: math mode
+============================================================
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line ....
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line ....
+wd=9.19998pt, ht=7.20001pt, dp=0.80002pt
+wd=13.54968pt, ht=9.36894pt, dp=0.0pt
+============================================================
+============================================================
+TEST 5: user tradition
+============================================================
+wd=5.19997pt, ht=7.20001pt, dp=0.80002pt
+============================================================
+============================================================
+TEST 6: existing command is not clobbered
+============================================================
+Package esoterica Warning: \TestBaz is already defined, so it was not generated. Use \eso{test/Baz} instead.
+kept
+============================================================
+============================================================
+TEST 7: redefinition
+============================================================
+Package esoterica Warning: Redefining glyph 'test/Bar'.
+wd=17.20001pt, ht=7.20001pt, dp=0.80002pt
+============================================================
+============================================================
+TEST 8: unknown glyph
+============================================================
+! Package esoterica Error: Unknown glyph 'masonic/Nope'.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+wd=12.04994pt, ht=9.51111pt, dp=3.4pt
+============================================================
+============================================================
+TEST 9: unknown tradition
+============================================================
+! Package esoterica Error: Unknown tradition 'nope'. Declare it first with \DeclareEsotericTradition.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 10: glyph with nothing to render
+============================================================
+! Package esoterica Error: Glyph 'test/Empty' has no drawing and no usable codepoint.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+wd=12.04994pt, ht=9.51111pt, dp=3.4pt
+============================================================
+============================================================
+TEST 11: scripts
+============================================================
+wd=8.39992pt, ht=7.20001pt, dp=0.80002pt
+wd=16.79984pt, ht=7.20001pt, dp=0.80002pt
+wd=20.13316pt, ht=7.20001pt, dp=0.80002pt
+wd=33.5997pt, ht=14.40002pt, dp=1.60004pt
+wd=11.1777pt, ht=7.20001pt, dp=0.80002pt
+============================================================
+============================================================
+TEST 12: unknown script
+============================================================
+! Package esoterica Error: Unknown script 'nope'. Declare it first with \DeclareEsotericScript.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 13: right-to-left script
+============================================================
+wd=28.53308pt, ht=7.20001pt, dp=0.80002pt
+wd=51.27965pt, ht=7.20001pt, dp=0.80002pt
+wd=51.27965pt, ht=7.20001pt, dp=0.80002pt
+============================================================

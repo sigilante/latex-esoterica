@@ -1,0 +1,240 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable}
+\usepackage{esoterica}
+\usepackage[hidelinks]{hyperref}
+
+% Long typewriter identifiers do not hyphenate; prefer loose lines to overfull ones.
+\sloppy
+
+\newcommand\pkg[1]{\textsf{#1}}
+\newcommand\cs[1]{\texttt{\textbackslash#1}}
+\newcommand\meta[1]{\ensuremath{\langle}\textit{#1}\ensuremath{\rangle}}
+\newcommand\oarg[1]{[\meta{#1}]}
+
+\title{The \pkg{esoterica} package\\[0.5ex]
+  \large Glyphs for esoteric traditions}
+\author{Sigilante}
+\date{v0.1.0 \quad 2026-09-13}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\pkg{esoterica} provides symbols from Freemasonry, the Golden Dawn, Druidry
+and related traditions: \MasonicSquareAndCompasses\ \GoldenDawnPentagram\
+\DruidAwen\ \DruidTriquetra.  The glyphs are original drawings, not wrappers
+around a system font, so they work with pdf\LaTeX, Xe\LaTeX\ and Lua\LaTeX,
+scale with the surrounding text and take its colour.
+\end{abstract}
+
+\tableofcontents
+
+\section{Quick start}
+
+\begin{verbatim}
+\usepackage{esoterica}
+...
+The \MasonicSquareAndCompasses{} and the \eso{goldendawn/Pentagram}.
+\end{verbatim}
+
+\noindent gives: The \MasonicSquareAndCompasses{} and the \eso{goldendawn/Pentagram}.
+
+\section{Loading}
+
+By default every built-in tradition is loaded.  To load only some, name them:
+
+\begin{verbatim}
+\usepackage[masonic, druidic]{esoterica}
+\usepackage[traditions={masonic, druidic}]{esoterica}   % same thing
+\usepackage[none]{esoterica}          % registry only; bring your own glyphs
+\usepackage[commands=false]{esoterica} % no \MasonicLevel-style commands
+\end{verbatim}
+
+\noindent To load a further tradition later, use
+\cs{esotericaload}\{\meta{name}\}.  It reads the file
+\texttt{esoterica-\meta{name}.def}.
+
+\section{Using glyphs}
+
+Every glyph has an identifier \meta{tradition}\texttt{/}\meta{Name}.  There are
+two ways to set one:
+
+\begin{description}
+  \item[\cs{eso}\oarg{options}\{\meta{tradition/Name}\}]
+    always available, e.g.\ \verb|\eso{masonic/Level}| \eso{masonic/Level}.
+  \item[\cs{\meta{Prefix}\meta{Name}}\oarg{options}]
+    generated for each glyph, e.g.\ \verb|\MasonicLevel| \MasonicLevel.
+    A command that already exists is never overwritten; the package warns
+    and you can fall back to \cs{eso}.
+\end{description}
+
+Glyphs work in math mode, where they follow the math style:
+$x^{\GoldenDawnFire} \GoldenDawnWater_{\GoldenDawnEarth}$.
+
+\subsection{Options}
+
+Give options to a single glyph in brackets.  To set them for the rest of the
+current group, use \cs{esotericasetup}\{\meta{options}\}.
+
+\begin{longtable}{lll}
+\bfseries Key & \bfseries Default & \bfseries Meaning\\ \hline
+\endhead
+\texttt{scale}       & \texttt{1}       & Multiplies size, raise and sidebearing\\
+\texttt{size}        & \texttt{0.8em}   & Length of one grid unit (the glyph height)\\
+\texttt{raise}       & \texttt{-0.08em} & Vertical shift from the baseline\\
+\texttt{sidebearing} & \texttt{0.06em}  & Space on each side of the glyph\\
+\texttt{line-width}  & \texttt{0.075}   & Stroke width, in grid units\\
+\texttt{color}       & current colour   & Any \pkg{xcolor} colour expression\\
+\texttt{tikz}        & empty            & Extra TikZ options for the drawing\\
+\texttt{driver}      & \texttt{draw}    & \texttt{draw} or \texttt{unicode} (see below)\\
+\texttt{direction}   & \texttt{ltr}     & \texttt{rtl} reverses the text of \cs{esotericascript}\\
+\texttt{font}        & current font     & \pkg{fontspec} font for the \texttt{unicode} driver\\
+\texttt{cache}       & \texttt{true}    & Reuse drawn boxes\\
+\texttt{proof-size}  & \texttt{6em}     & Grid unit used by \cs{esotericaproof}\\
+\end{longtable}
+
+\noindent For example,
+\begin{verbatim}
+\GoldenDawnHexagram[scale=2, color=blue]
+{\esotericasetup{line-width=0.11} \MasonicSquareAndCompasses \DruidTriquetra}
+\end{verbatim}
+\noindent gives \GoldenDawnHexagram[scale=2, color=blue] and bolder strokes
+for the whole group:
+{\esotericasetup{line-width=0.11}\MasonicSquareAndCompasses\ \DruidTriquetra}.
+The TikZ style \texttt{esoterica glyph} is applied to every drawing, so
+\verb|\tikzset{esoterica glyph/.style={line cap=butt}}| also works.
+
+\subsection{Drivers}
+
+The \texttt{draw} driver runs the glyph's TikZ drawing and works everywhere.
+Where a glyph also has a Unicode codepoint, the \texttt{unicode} driver sets
+that character from a font instead, which gives searchable, copyable text.
+It needs Xe\LaTeX\ or Lua\LaTeX:
+
+\begin{verbatim}
+\usepackage{fontspec}
+\esotericasetup{driver=unicode, font=Noto Sans Symbols}
+\end{verbatim}
+
+\noindent Each driver falls back to the other: a glyph without a drawing is
+set from its codepoint, and a codepoint the font lacks is drawn.
+
+\subsection{Scripts}
+
+Some glyph sets are alphabets or ciphers for whole words.  The command
+\begin{quote}
+  \cs{esotericascript}\oarg{options}\{\meta{script}\}\{\meta{text}\}
+\end{quote}
+sets plain text in a script letter by letter.  Letters match regardless of
+case, spaces stay spaces, and characters without a glyph are printed
+unchanged.  Dee wrote Enochian from right to left; the option
+\texttt{direction=rtl} reverses the text.
+
+\begin{verbatim}
+\esotericascript{royalarch}{Holiness to the Lord}
+\esotericascript[direction=rtl]{enochian}{Madriax}
+\end{verbatim}
+
+\noindent gives \esotericascript{royalarch}{Holiness to the Lord} and
+\esotericascript[direction=rtl]{enochian}{Madriax}.
+
+\begin{longtable}{ll}
+\bfseries Script & \bfseries Key\\ \hline
+\endhead
+\texttt{royalarch} & \esotericascript{royalarch}{ABCDEFGHIJKLM}\\
+                   & \esotericascript{royalarch}{NOPQRSTUVWXYZ}\\
+\texttt{enochian}  & \esotericascript{enochian}{ABCDEFGHILM}\\
+                   & \esotericascript{enochian}{NOPQRSTUXZ}\\
+\end{longtable}
+
+\section{The glyphs}
+
+\esotericatable{masonic}
+\esotericatable{goldendawn}
+\esotericatable{druidic}
+
+\section{Adding glyphs}
+
+\subsection{Declarations}
+
+A tradition is a namespace with an optional command prefix:
+
+\begin{verbatim}
+\DeclareEsotericTradition{martinist}{
+  name   = Martinism,
+  prefix = Martinist,
+}
+\end{verbatim}
+
+A glyph belongs to a tradition:
+
+\begin{verbatim}
+\DeclareEsotericGlyph{martinist}{Seal}{
+  description = {Seal of the Martinist Order},
+  width   = 1,        % grid units; the height is always 1
+  unicode = 2721,     % optional; hex, with or without U+
+  draw    = {
+    \draw (0.5,0.5) circle[radius=0.42];
+    ...
+  },
+}
+\end{verbatim}
+
+\noindent A script maps letters to glyphs for \cs{esotericascript}:
+
+\begin{verbatim}
+\DeclareEsotericScript{royalarch}{
+  A = masonic/RoyalArchA,
+  B = masonic/RoyalArchB,
+  ...
+}
+\end{verbatim}
+
+\noindent Declarations can appear in a document preamble, in a private file,
+or in a module \texttt{esoterica-\meta{name}.def} shipped with the package.
+Built-in traditions are listed in \verb|\c__esoterica_modules_clist| in
+\texttt{esoterica.sty}.  \cs{IfEsotericGlyphTF}\{\meta{id}\}\{\meta{true}\}\{\meta{false}\}
+tests whether a glyph exists.
+
+\subsection{Design conventions}
+
+\begin{itemize}
+  \item The drawing grid runs from $x=0$ to the glyph width and from $y=0$ to
+    $y=1$.  Only this box counts for spacing; ink outside it overlaps
+    neighbouring text.
+  \item Keep about half a stroke (0.04) clear of every edge so round caps
+    stay inside the box.
+  \item Use \verb|\draw| for strokes so every glyph shares the package's
+    line width, caps and joins.  Use \verb|\fill| for dots and solid shapes.
+  \item For a finer or heavier stroke, scale the package width rather than
+    giving an absolute one: \verb|\draw[line width=0.6\pgflinewidth]|.
+  \item Do not set colours; glyphs inherit the text colour.
+  \item Glyphs that belong together should share geometry.  The four
+    elemental triangles all use the frame $y\in[0.06,0.82]$.
+\end{itemize}
+
+\subsection{Proofing}
+
+\cs{esotericaproof}\oarg{options}\{\meta{id}\} draws a glyph on its grid with
+the box outlined and the baseline in red, and sets a specimen at text size
+underneath.  \cs{esotericaproofsheet}\oarg{options}\{\meta{tradition}\} does the
+same for every glyph of a tradition.
+
+\begin{center}
+  \esotericaproof{masonic/SquareAndCompasses}\qquad
+  \esotericaproof{druidic/Triquetra}
+\end{center}
+
+\section{Proof sheets}
+
+\subsection{Freemasonry}
+\esotericaproofsheet[proof-size=4em]{masonic}
+\subsection{Golden Dawn}
+\esotericaproofsheet[proof-size=4em]{goldendawn}
+\subsection{Druidry}
+\esotericaproofsheet[proof-size=4em]{druidic}
+
+\end{document}

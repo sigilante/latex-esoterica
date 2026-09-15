@@ -1,0 +1,718 @@
+%% esoterica.sty -- glyphs for esoteric traditions
+%% Copyright (c) 2026 Sigilante. Released under the MIT License; see LICENSE.
+%%
+%% Architecture
+%% ------------
+%%   * Traditions (masonic, goldendawn, ...) are namespaces with a command
+%%     prefix.  Each built-in tradition lives in esoterica-<name>.def.
+%%   * Glyphs are records in a registry: width, description, optional Unicode
+%%     codepoint, and TikZ drawing code on a unit grid.
+%%   * Drivers turn a record into a box.  "draw" runs the TikZ code (any
+%%     engine); "unicode" typesets the codepoint from a font (XeTeX/LuaTeX).
+%%     Each driver falls back to the other.
+%%   * Drawn glyphs are cached per (glyph, revision, size, stroke, style,
+%%     colour), because TikZ bakes the current colour into the box.
+\NeedsTeXFormat{LaTeX2e}[2022-06-01]
+\ProvidesExplPackage{esoterica}{2026-09-13}{0.1.0}
+  {Glyphs for esoteric traditions}
+
+\RequirePackage{tikz}
+\RequirePackage{amstext}
+
+\cs_generate_variant:Nn \prop_gput:Nnn { cnV , cne }
+\cs_generate_variant:Nn \int_from_hex:n { V }
+\cs_generate_variant:Nn \msg_warning:nnnn { nnne , nnee }
+
+%% ---------------------------------------------------------------------------
+%% Messages
+
+\msg_new:nnn { esoterica } { unknown-glyph }
+  { Unknown~glyph~'#1'. }
+\msg_new:nnn { esoterica } { unknown-tradition }
+  {
+    Unknown~tradition~'#1'.~
+    Declare~it~first~with~\iow_char:N\\DeclareEsotericTradition.
+  }
+\msg_new:nnn { esoterica } { unknown-script }
+  {
+    Unknown~script~'#1'.~
+    Declare~it~first~with~\iow_char:N\\DeclareEsotericScript.
+  }
+\msg_new:nnn { esoterica } { unknown-module }
+  { Cannot~find~module~file~'esoterica-#1.def'. }
+\msg_new:nnn { esoterica } { glyph-redefined }
+  { Redefining~glyph~'#1'. }
+\msg_new:nnn { esoterica } { command-exists }
+  {
+    \iow_char:N\\#1~is~already~defined,~so~it~was~not~generated.~
+    Use~\iow_char:N\\eso{#2}~instead.
+  }
+\msg_new:nnn { esoterica } { no-renderer }
+  { Glyph~'#1'~has~no~drawing~and~no~usable~codepoint. }
+\msg_new:nnn { esoterica } { no-unicode-engine }
+  {
+    The~unicode~driver~needs~XeLaTeX~or~LuaLaTeX;~
+    glyphs~will~be~drawn~instead.
+  }
+\msg_new:nnn { esoterica } { missing-char }
+  { The~font~has~no~U+#2~for~glyph~'#1';~drawing~it~instead. }
+\msg_new:nnn { esoterica } { no-fontspec }
+  { The~'font'~key~needs~the~fontspec~package. }
+
+%% ---------------------------------------------------------------------------
+%% Variables
+
+\seq_new:N   \g__esoterica_traditions_seq
+\seq_new:N   \g__esoterica_modules_seq
+\seq_new:N   \g__esoterica_commands_seq
+\clist_new:N \g__esoterica_load_clist
+\bool_new:N  \g__esoterica_explicit_load_bool
+\bool_new:N  \g__esoterica_commands_bool
+\bool_gset_true:N \g__esoterica_commands_bool
+\bool_new:N  \g__esoterica_found_bool
+\bool_new:N  \g__esoterica_engine_warned_bool
+\int_new:N   \g__esoterica_revision_int
+
+\int_new:N   \l__esoterica_codepoint_int
+\dim_new:N   \l__esoterica_unit_dim
+\box_new:N   \l__esoterica_glyph_box
+\box_new:N   \l__esoterica_specimen_box
+\str_new:N   \l__esoterica_driver_str
+\tl_new:N    \l__esoterica_tmp_tl
+\tl_new:N    \l__esoterica_key_tl
+\tl_new:N    \l__esoterica_draw_tl
+\tl_new:N    \l__esoterica_width_tl
+\tl_new:N    \l__esoterica_baseline_tl
+\tl_new:N    \l__esoterica_rows_tl
+\str_new:N   \l__esoterica_script_str
+\str_new:N   \l__esoterica_tmp_str
+\str_new:N   \l__esoterica_direction_str
+\tl_new:N    \l__esoterica_script_tl
+\bool_new:N  \l__esoterica_proof_bool
+
+\clist_const:Nn \c__esoterica_modules_clist { masonic , goldendawn , druidic }
+
+%% ---------------------------------------------------------------------------
+%% Rendering keys (\esotericasetup, \eso[...], generated commands)
+
+\keys_define:nn { esoterica }
+  {
+    size        .tl_set:N   = \l__esoterica_size_tl ,
+    size        .initial:n  = 0.8em ,
+    scale       .tl_set:N   = \l__esoterica_scale_tl ,
+    scale       .initial:n  = 1 ,
+    raise       .tl_set:N   = \l__esoterica_raise_tl ,
+    raise       .initial:n  = -0.08em ,
+    line-width  .tl_set:N   = \l__esoterica_line_width_tl ,
+    line-width  .initial:n  = 0.075 ,
+    sidebearing .tl_set:N   = \l__esoterica_sidebearing_tl ,
+    sidebearing .initial:n  = 0.06em ,
+    color       .tl_set:N   = \l__esoterica_color_tl ,
+    tikz        .tl_set:N   = \l__esoterica_tikz_tl ,
+    font        .tl_set:N   = \l__esoterica_font_tl ,
+    driver      .choices:nn =
+      { draw , unicode }
+      { \str_set:NV \l__esoterica_driver_str \l_keys_choice_tl } ,
+    driver      .initial:n  = draw ,
+    direction   .choices:nn =
+      { ltr , rtl }
+      { \str_set:NV \l__esoterica_direction_str \l_keys_choice_tl } ,
+    direction   .initial:n  = ltr ,
+    cache       .bool_set:N = \l__esoterica_cache_bool ,
+    cache       .initial:n  = true ,
+    proof-size  .tl_set:N   = \l__esoterica_proof_size_tl ,
+    proof-size  .initial:n  = 6em ,
+  }
+
+%% ---------------------------------------------------------------------------
+%% Package options
+
+\keys_define:nn { esoterica / package }
+  {
+    commands   .bool_gset:N = \g__esoterica_commands_bool ,
+    traditions .code:n =
+      {
+        \bool_gset_true:N \g__esoterica_explicit_load_bool
+        \clist_gput_right:Nn \g__esoterica_load_clist {#1}
+      } ,
+    all        .code:n =
+      {
+        \bool_gset_true:N \g__esoterica_explicit_load_bool
+        \clist_gput_right:NV \g__esoterica_load_clist \c__esoterica_modules_clist
+      } ,
+    none       .code:n = \bool_gset_true:N \g__esoterica_explicit_load_bool ,
+  }
+\clist_map_inline:Nn \c__esoterica_modules_clist
+  {
+    \keys_define:nn { esoterica / package }
+      { #1 .meta:n = { traditions = #1 } }
+  }
+\ProcessKeyOptions [ esoterica / package ]
+
+\tikzset { esoterica~glyph/.style = { } }
+
+%% ---------------------------------------------------------------------------
+%% Registry: traditions
+
+\keys_define:nn { esoterica / tradition }
+  {
+    name        .tl_set:N = \l__esoterica_decl_name_tl ,
+    prefix      .tl_set:N = \l__esoterica_decl_prefix_tl ,
+    description .tl_set:N = \l__esoterica_decl_description_tl ,
+  }
+
+\cs_new_protected:Npn \__esoterica_declare_tradition:nn #1#2
+  {
+    \tl_clear:N \l__esoterica_decl_name_tl
+    \tl_clear:N \l__esoterica_decl_prefix_tl
+    \tl_clear:N \l__esoterica_decl_description_tl
+    \keys_set:nn { esoterica / tradition } {#2}
+    \prop_gclear_new:c { g__esoterica_trad_#1_prop }
+    \prop_gput:cnV { g__esoterica_trad_#1_prop } { name }
+      \l__esoterica_decl_name_tl
+    \prop_gput:cnV { g__esoterica_trad_#1_prop } { prefix }
+      \l__esoterica_decl_prefix_tl
+    \prop_gput:cnV { g__esoterica_trad_#1_prop } { description }
+      \l__esoterica_decl_description_tl
+    \seq_if_in:NnF \g__esoterica_traditions_seq {#1}
+      {
+        \seq_gput_right:Nn \g__esoterica_traditions_seq {#1}
+        \seq_new:c { g__esoterica_trad_#1_glyphs_seq }
+      }
+  }
+
+%% ---------------------------------------------------------------------------
+%% Registry: glyphs
+
+\keys_define:nn { esoterica / glyph }
+  {
+    description .tl_set:N = \l__esoterica_decl_description_tl ,
+    width       .tl_set:N = \l__esoterica_decl_width_tl ,
+    unicode     .tl_set:N = \l__esoterica_decl_unicode_tl ,
+    draw        .tl_set:N = \l__esoterica_decl_draw_tl ,
+  }
+
+\cs_new_protected:Npn \__esoterica_declare_glyph:nnn #1#2#3
+  {
+    \prop_if_exist:cTF { g__esoterica_trad_#1_prop }
+      {
+        \tl_clear:N \l__esoterica_decl_description_tl
+        \tl_set:Nn  \l__esoterica_decl_width_tl { 1 }
+        \tl_clear:N \l__esoterica_decl_unicode_tl
+        \tl_clear:N \l__esoterica_decl_draw_tl
+        \keys_set:nn { esoterica / glyph } {#3}
+        \__esoterica_store_glyph:nn {#1} {#2}
+      }
+      { \msg_error:nnn { esoterica } { unknown-tradition } {#1} }
+  }
+
+\cs_new_protected:Npn \__esoterica_store_glyph:nn #1#2
+  {
+    \prop_if_exist:cTF { g__esoterica_glyph_#1/#2_prop }
+      { \msg_warning:nnn { esoterica } { glyph-redefined } { #1/#2 } }
+      {
+        \prop_new:c { g__esoterica_glyph_#1/#2_prop }
+        \seq_gput_right:cn { g__esoterica_trad_#1_glyphs_seq } {#2}
+      }
+    % A fresh revision per declaration keeps stale cached boxes out of use.
+    \int_gincr:N \g__esoterica_revision_int
+    \prop_gclear:c { g__esoterica_glyph_#1/#2_prop }
+    \prop_gput:cnn { g__esoterica_glyph_#1/#2_prop } { tradition } {#1}
+    \prop_gput:cnn { g__esoterica_glyph_#1/#2_prop } { name } {#2}
+    \prop_gput:cne { g__esoterica_glyph_#1/#2_prop } { revision }
+      { \int_use:N \g__esoterica_revision_int }
+    \prop_gput:cne { g__esoterica_glyph_#1/#2_prop } { width }
+      { \fp_eval:n { \l__esoterica_decl_width_tl } }
+    \prop_gput:cnV { g__esoterica_glyph_#1/#2_prop } { description }
+      \l__esoterica_decl_description_tl
+    \prop_gput:cnV { g__esoterica_glyph_#1/#2_prop } { draw }
+      \l__esoterica_decl_draw_tl
+    \tl_if_blank:VF \l__esoterica_decl_unicode_tl
+      {
+        \tl_remove_once:Nn \l__esoterica_decl_unicode_tl { U+ }
+        \prop_gput:cne { g__esoterica_glyph_#1/#2_prop } { codepoint }
+          { \int_from_hex:V \l__esoterica_decl_unicode_tl }
+      }
+    \bool_if:NT \g__esoterica_commands_bool
+      { \__esoterica_make_command:nn {#1} {#2} }
+  }
+
+\prg_new_conditional:Npnn \esoterica_if_glyph:n #1 { p , T , F , TF }
+  {
+    \prop_if_exist:cTF { g__esoterica_glyph_#1_prop }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+
+%% ---------------------------------------------------------------------------
+%% Registry: scripts
+%%
+%% A script maps letters to glyph ids so running text can be set in a cipher
+%% or alphabet.  Letters are stored upper-case and matched case-insensitively.
+
+\cs_generate_variant:Nn \prop_gput:Nnn { cen }
+
+\cs_new_protected:Npn \__esoterica_declare_script:nn #1#2
+  {
+    \prop_gclear_new:c { g__esoterica_script_#1_prop }
+    \keyval_parse:nnn { } { \__esoterica_script_put:nnn {#1} } {#2}
+  }
+\cs_new_protected:Npn \__esoterica_script_put:nnn #1#2#3
+  { \prop_gput:cen { g__esoterica_script_#1_prop } { \text_uppercase:n {#2} } {#3} }
+
+%% Spaces stay spaces; characters without a glyph are typeset unchanged.
+%% With direction=rtl the text is reversed before it is set.
+\cs_new_protected:Npn \__esoterica_script:nnn #1#2#3
+  {
+    \prop_if_exist:cTF { g__esoterica_script_#2_prop }
+      {
+        \group_begin:
+          \keys_set:nn { esoterica } {#1}
+          \str_set:Ne \l__esoterica_script_str { \text_uppercase:n {#3} }
+          \str_if_eq:VnT \l__esoterica_direction_str { rtl }
+            {
+              \str_clear:N \l__esoterica_tmp_str
+              \str_map_inline:Nn \l__esoterica_script_str
+                { \str_put_left:Nn \l__esoterica_tmp_str {##1} }
+              \str_set_eq:NN \l__esoterica_script_str \l__esoterica_tmp_str
+            }
+          \str_map_inline:Nn \l__esoterica_script_str
+            {
+              \prop_get:cnNTF { g__esoterica_script_#2_prop } {##1}
+                \l__esoterica_script_tl
+                { \exp_args:NnV \__esoterica_use:nn { } \l__esoterica_script_tl }
+                { \str_if_eq:nnTF {##1} { ~ } { \c_space_tl } {##1} }
+            }
+        \group_end:
+      }
+      { \msg_error:nnn { esoterica } { unknown-script } {#2} }
+  }
+
+%% Generated commands such as \MasonicSquareAndCompasses.  They are defined
+%% globally (modules are read inside a group) and never overwrite anything.
+
+\cs_new_protected:Npn \__esoterica_make_command:nn #1#2
+  {
+    \tl_set:Ne \l__esoterica_tmp_tl
+      { \prop_item:cn { g__esoterica_trad_#1_prop } { prefix } }
+    \tl_if_empty:NF \l__esoterica_tmp_tl
+      {
+        \tl_put_right:Nn \l__esoterica_tmp_tl {#2}
+        \seq_if_in:NVF \g__esoterica_commands_seq \l__esoterica_tmp_tl
+          {
+            \cs_if_exist:cTF { \l__esoterica_tmp_tl }
+              {
+                \msg_warning:nnee { esoterica } { command-exists }
+                  { \l__esoterica_tmp_tl } { #1/#2 }
+              }
+              {
+                \seq_gput_right:NV \g__esoterica_commands_seq \l__esoterica_tmp_tl
+                \cs_gset_protected:cpn { \l__esoterica_tmp_tl }
+                  { \__esoterica_command:nw { #1/#2 } }
+              }
+          }
+      }
+  }
+
+\cs_new_protected:Npn \__esoterica_command:nw #1
+  {
+    \peek_meaning:NTF [
+      { \__esoterica_command_opt:nw {#1} }
+      { \__esoterica_use:nn { } {#1} }
+  }
+\cs_new_protected:Npn \__esoterica_command_opt:nw #1 [ #2 ]
+  { \__esoterica_use:nn {#2} {#1} }
+
+%% ---------------------------------------------------------------------------
+%% Modules
+
+\cs_new_protected:Npn \__esoterica_load_module:n #1
+  {
+    \seq_if_in:NnF \g__esoterica_modules_seq {#1}
+      {
+        \file_if_exist:nTF { esoterica-#1.def }
+          {
+            \seq_gput_right:Nn \g__esoterica_modules_seq {#1}
+            % Module files use document catcodes so TikZ code reads normally.
+            \group_begin:
+              \ExplSyntaxOff
+              \file_input:n { esoterica-#1.def }
+            \group_end:
+          }
+          { \msg_error:nnn { esoterica } { unknown-module } {#1} }
+      }
+  }
+
+%% ---------------------------------------------------------------------------
+%% Rendering
+
+\cs_new_protected:Npn \__esoterica_use:nn #1#2
+  {
+    \mode_if_math:TF
+      { \text { \__esoterica_use_text:nn {#1} {#2} } }
+      { \__esoterica_use_text:nn {#1} {#2} }
+  }
+
+\cs_new_protected:Npn \__esoterica_use_text:nn #1#2
+  {
+    \esoterica_if_glyph:nTF {#2}
+      {
+        \group_begin:
+          \keys_set:nn { esoterica } {#1}
+          \tl_if_empty:NF \l__esoterica_color_tl
+            { \exp_args:NV \color \l__esoterica_color_tl }
+          \__esoterica_set_unit:
+          \str_if_eq:VnTF \l__esoterica_driver_str { unicode }
+            {
+              \__esoterica_unicode:nF {#2}
+                { \__esoterica_draw:nF {#2} { \__esoterica_none:n {#2} } }
+            }
+            {
+              \__esoterica_draw:nF {#2}
+                { \__esoterica_unicode:nF {#2} { \__esoterica_none:n {#2} } }
+            }
+        \group_end:
+      }
+      {
+        \msg_error:nnn { esoterica } { unknown-glyph } {#2}
+        \__esoterica_placeholder:
+      }
+  }
+
+\cs_new_protected:Npn \__esoterica_set_unit:
+  {
+    \dim_set:Nn \l__esoterica_unit_dim
+      { \__esoterica_scaled:V \l__esoterica_size_tl }
+  }
+\cs_new:Npn \__esoterica_scaled:n #1
+  { \fp_to_dim:n { ( \l__esoterica_scale_tl ) * \dim_to_fp:n {#1} } }
+\cs_generate_variant:Nn \__esoterica_scaled:n { V }
+
+\cs_new_protected:Npn \__esoterica_none:n #1
+  {
+    \msg_error:nnn { esoterica } { no-renderer } {#1}
+    \__esoterica_placeholder:
+  }
+\cs_new_protected:Npn \__esoterica_placeholder:
+  { \mode_leave_vertical: \fbox { \ttfamily ? } }
+
+%% Driver: draw
+
+\cs_new_protected:Npn \__esoterica_draw:nF #1#2
+  {
+    \__esoterica_if_drawable:nTF {#1}
+      {
+        \__esoterica_draw_box:n {#1}
+        \__esoterica_place_box:
+      }
+      {#2}
+  }
+
+\prg_new_protected_conditional:Npnn \__esoterica_if_drawable:n #1 { TF }
+  {
+    \prop_get:cnNTF { g__esoterica_glyph_#1_prop } { draw } \l__esoterica_draw_tl
+      {
+        \tl_if_blank:VTF \l__esoterica_draw_tl
+          { \prg_return_false: }
+          { \prg_return_true: }
+      }
+      { \prg_return_false: }
+  }
+
+\cs_new_protected:Npn \__esoterica_draw_box:n #1
+  {
+    \bool_if:NTF \l__esoterica_cache_bool
+      {
+        \tl_set:Ne \l__esoterica_key_tl
+          {
+            g__esoterica_cache
+            / #1
+            / \prop_item:cn { g__esoterica_glyph_#1_prop } { revision }
+            / \dim_use:N \l__esoterica_unit_dim
+            / \tl_to_str:N \l__esoterica_line_width_tl
+            / \tl_to_str:N \l__esoterica_tikz_tl
+            / \tl_to_str:c { current@color }
+            _box
+          }
+        \box_if_exist:cF { \l__esoterica_key_tl }
+          {
+            % Keep one allocation line per glyph/size/colour out of the log.
+            \group_begin:
+              \cs_set_eq:NN \wlog \use_none:n
+              \box_new:c { \l__esoterica_key_tl }
+            \group_end:
+            \hbox_gset:cn { \l__esoterica_key_tl } { \__esoterica_picture:n {#1} }
+          }
+        \box_set_eq:Nc \l__esoterica_glyph_box { \l__esoterica_key_tl }
+      }
+      { \hbox_set:Nn \l__esoterica_glyph_box { \__esoterica_picture:n {#1} } }
+  }
+
+\cs_new_protected:Npn \__esoterica_place_box:
+  {
+    \mode_leave_vertical:
+    \hbox:n
+      {
+        \skip_horizontal:n { \__esoterica_scaled:V \l__esoterica_sidebearing_tl }
+        \box_move_down:nn
+          { - \__esoterica_scaled:V \l__esoterica_raise_tl }
+          { \box_use:N \l__esoterica_glyph_box }
+        \skip_horizontal:n { \__esoterica_scaled:V \l__esoterica_sidebearing_tl }
+      }
+  }
+
+%% The glyph grid: x from 0 to width, y from 0 to 1, one unit = size.
+%% Strokes default to line-width units wide with round caps and joins.
+\cs_new_protected:Npn \__esoterica_picture:n #1
+  {
+    \prop_get:cnN { g__esoterica_glyph_#1_prop } { draw } \l__esoterica_draw_tl
+    \tl_set:Ne \l__esoterica_width_tl
+      { \prop_item:cn { g__esoterica_glyph_#1_prop } { width } }
+    \use:e
+      {
+        \exp_not:N \begin { tikzpicture }
+          [
+            baseline = 0pt ,
+            x = \dim_use:N \l__esoterica_unit_dim ,
+            y = \dim_use:N \l__esoterica_unit_dim ,
+            line~width = \fp_to_dim:n
+              { ( \l__esoterica_line_width_tl ) * \l__esoterica_unit_dim } ,
+            line~cap = round ,
+            line~join = round ,
+            esoterica~glyph ,
+            \exp_not:V \l__esoterica_tikz_tl
+          ]
+      }
+      \bool_if:NTF \l__esoterica_proof_bool
+        { \__esoterica_proof_grid: }
+        {
+          \path [ use~as~bounding~box ]
+            ( 0 , 0 ) rectangle ( \l__esoterica_width_tl , 1 ) ;
+        }
+      \tl_use:N \l__esoterica_draw_tl
+    \end { tikzpicture }
+  }
+
+%% Driver: unicode
+
+\cs_new_protected:Npn \__esoterica_unicode:nF #1#2
+  {
+    \prop_get:cnNTF { g__esoterica_glyph_#1_prop } { codepoint } \l__esoterica_tmp_tl
+      {
+        \bool_lazy_or:nnTF { \sys_if_engine_xetex_p: } { \sys_if_engine_luatex_p: }
+          {
+            \int_set:Nn \l__esoterica_codepoint_int { \l__esoterica_tmp_tl }
+            \hbox_set:Nn \l__esoterica_glyph_box
+              {
+                \__esoterica_select_font:
+                \tex_iffontchar:D \tex_font:D \l__esoterica_codepoint_int
+                  \bool_gset_true:N \g__esoterica_found_bool
+                  \tex_char:D \l__esoterica_codepoint_int
+                \else:
+                  \bool_gset_false:N \g__esoterica_found_bool
+                \fi:
+              }
+            \bool_if:NTF \g__esoterica_found_bool
+              {
+                \mode_leave_vertical:
+                \box_use:N \l__esoterica_glyph_box
+              }
+              {
+                \msg_warning:nnne { esoterica } { missing-char } {#1}
+                  { \int_to_Hex:n { \l__esoterica_codepoint_int } }
+                #2
+              }
+          }
+          {
+            \bool_if:NF \g__esoterica_engine_warned_bool
+              {
+                \msg_warning:nn { esoterica } { no-unicode-engine }
+                \bool_gset_true:N \g__esoterica_engine_warned_bool
+              }
+            #2
+          }
+      }
+      {#2}
+  }
+
+\cs_new_protected:Npn \__esoterica_select_font:
+  {
+    \tl_if_empty:NF \l__esoterica_font_tl
+      {
+        \cs_if_exist:NTF \fontspec
+          { \exp_args:NV \fontspec \l__esoterica_font_tl }
+          { \msg_error:nn { esoterica } { no-fontspec } }
+      }
+    \fp_compare:nNnF { \l__esoterica_scale_tl } = { 1 }
+      {
+        \fontsize
+          { \fp_eval:n { ( \l__esoterica_scale_tl ) * \use:c { f@size } } }
+          { \baselineskip }
+        \selectfont
+      }
+  }
+
+%% ---------------------------------------------------------------------------
+%% Porcelain: tables and proofs
+
+\cs_new_protected:Npn \__esoterica_table:nn #1#2
+  {
+    \seq_if_exist:cTF { g__esoterica_trad_#2_glyphs_seq }
+      {
+        \tl_clear:N \l__esoterica_rows_tl
+        \seq_map_inline:cn { g__esoterica_trad_#2_glyphs_seq }
+          {
+            \tl_put_right:Nn \l__esoterica_rows_tl
+              {
+                \eso [ #1 ] { #2/##1 }
+                & \__esoterica_table_command:nn {#2} {##1}
+                & \__esoterica_table_unicode:n { #2/##1 }
+                & \raggedright
+                  \prop_item:cn { g__esoterica_glyph_#2/##1_prop } { description }
+                \tabularnewline
+              }
+          }
+        \IfPackageLoadedTF { longtable }
+          {
+            \begin { longtable } { c l l p { 0.36 \linewidth } }
+              \__esoterica_table_header: \endhead
+              \l__esoterica_rows_tl
+            \end { longtable }
+          }
+          {
+            \begin { tabular } { c l l p { 0.36 \linewidth } }
+              \__esoterica_table_header:
+              \l__esoterica_rows_tl
+            \end { tabular }
+          }
+      }
+      { \msg_error:nnn { esoterica } { unknown-tradition } {#2} }
+  }
+
+\cs_new_protected:Npn \__esoterica_table_header:
+  {
+    \bfseries Glyph & \bfseries Command & \bfseries Unicode
+      & \bfseries Description \tabularnewline
+    \hline
+  }
+
+\cs_new_protected:Npn \__esoterica_table_command:nn #1#2
+  {
+    \tl_set:Ne \l__esoterica_tmp_tl
+      { \prop_item:cn { g__esoterica_trad_#1_prop } { prefix } #2 }
+    \ttfamily
+    \seq_if_in:NVTF \g__esoterica_commands_seq \l__esoterica_tmp_tl
+      { \c_backslash_str \tl_to_str:N \l__esoterica_tmp_tl }
+      { \c_backslash_str eso \{ #1/#2 \} }
+  }
+
+\cs_new_protected:Npn \__esoterica_table_unicode:n #1
+  {
+    \prop_get:cnNTF { g__esoterica_glyph_#1_prop } { codepoint } \l__esoterica_tmp_tl
+      { \texttt { U+ \int_to_Hex:n { \l__esoterica_tmp_tl } } }
+      { --- }
+  }
+
+%% A large rendering on the design grid (baseline in red), with the glyph
+%% id and a specimen at text size underneath.
+\cs_new_protected:Npn \__esoterica_proof:nn #1#2
+  {
+    \esoterica_if_glyph:nTF {#2}
+      {
+        \group_begin:
+          \keys_set:nn { esoterica } {#1}
+          \hbox_set:Nn \l__esoterica_specimen_box { Hx \eso [#1] {#2} xg }
+          \tl_set:Ne \l__esoterica_baseline_tl
+            {
+              \fp_eval:n
+                {
+                  - \dim_to_fp:n { \l__esoterica_raise_tl }
+                  / \dim_to_fp:n { \l__esoterica_size_tl }
+                }
+            }
+          \tl_set_eq:NN \l__esoterica_size_tl \l__esoterica_proof_size_tl
+          \bool_set_true:N \l__esoterica_proof_bool
+          \bool_set_false:N \l__esoterica_cache_bool
+          \__esoterica_set_unit:
+          \__esoterica_if_drawable:nTF {#2}
+            { \__esoterica_draw_box:n {#2} }
+            { \hbox_set:Nn \l__esoterica_glyph_box { \__esoterica_none:n {#2} } }
+          \mode_leave_vertical:
+          \begin { tabular } [ t ] { c }
+            \box_use:N \l__esoterica_glyph_box \tabularnewline
+            \footnotesize \ttfamily \tl_to_str:n {#2} \tabularnewline
+            \box_use:N \l__esoterica_specimen_box
+          \end { tabular }
+        \group_end:
+      }
+      { \msg_error:nnn { esoterica } { unknown-glyph } {#2} }
+  }
+
+\cs_new_protected:Npn \__esoterica_proof_grid:
+  {
+    \path [ use~as~bounding~box ]
+      ( -0.12 , \fp_eval:n { min ( 0 , \l__esoterica_baseline_tl ) - 0.12 } )
+      rectangle
+      ( \fp_eval:n { \l__esoterica_width_tl + 0.12 } , 1.12 ) ;
+    \draw [ black!12 , line~width = 0.25pt , step = 0.1 ]
+      ( 0 , 0 ) grid ( \l__esoterica_width_tl , 1 ) ;
+    \draw [ black!40 , line~width = 0.5pt ]
+      ( 0 , 0 ) rectangle ( \l__esoterica_width_tl , 1 ) ;
+    \draw [ red!70 , line~width = 0.5pt ]
+      ( -0.12 , \l__esoterica_baseline_tl ) --
+      ( \fp_eval:n { \l__esoterica_width_tl + 0.12 } , \l__esoterica_baseline_tl ) ;
+  }
+
+\cs_new_protected:Npn \__esoterica_proof_sheet:nn #1#2
+  {
+    \seq_if_exist:cTF { g__esoterica_trad_#2_glyphs_seq }
+      {
+        \par
+        \group_begin:
+          \raggedright
+          \seq_map_inline:cn { g__esoterica_trad_#2_glyphs_seq }
+            {
+              \__esoterica_proof:nn {#1} { #2/##1 }
+              \skip_horizontal:n { 1em plus 1em }
+            }
+          \par
+        \group_end:
+      }
+      { \msg_error:nnn { esoterica } { unknown-tradition } {#2} }
+  }
+
+%% ---------------------------------------------------------------------------
+%% Document interface
+
+\NewDocumentCommand \eso { O{} m } { \__esoterica_use:nn {#1} {#2} }
+\NewDocumentCommand \esotericasetup { m } { \keys_set:nn { esoterica } {#1} }
+\NewDocumentCommand \esotericaload { m }
+  { \clist_map_function:nN {#1} \__esoterica_load_module:n }
+
+\NewDocumentCommand \DeclareEsotericTradition { m m }
+  { \__esoterica_declare_tradition:nn {#1} {#2} }
+\NewDocumentCommand \DeclareEsotericGlyph { m m m }
+  { \__esoterica_declare_glyph:nnn {#1} {#2} {#3} }
+\NewDocumentCommand \DeclareEsotericScript { m m }
+  { \__esoterica_declare_script:nn {#1} {#2} }
+\NewDocumentCommand \esotericascript { O{} m m }
+  { \__esoterica_script:nnn {#1} {#2} {#3} }
+\NewExpandableDocumentCommand \IfEsotericGlyphTF { m m m }
+  { \esoterica_if_glyph:nTF {#1} {#2} {#3} }
+
+\NewDocumentCommand \esotericatable { O{} m }
+  { \__esoterica_table:nn {#1} {#2} }
+\NewDocumentCommand \esotericaproof { O{} m }
+  { \__esoterica_proof:nn {#1} {#2} }
+\NewDocumentCommand \esotericaproofsheet { O{} m }
+  { \__esoterica_proof_sheet:nn {#1} {#2} }
+
+%% ---------------------------------------------------------------------------
+%% Load the requested traditions (all of them by default)
+
+\bool_if:NF \g__esoterica_explicit_load_bool
+  { \clist_gset_eq:NN \g__esoterica_load_clist \c__esoterica_modules_clist }
+\clist_gremove_duplicates:N \g__esoterica_load_clist
+\clist_map_function:NN \g__esoterica_load_clist \__esoterica_load_module:n
+
+\endinput

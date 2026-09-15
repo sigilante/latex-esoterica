@@ -1,0 +1,449 @@
+%% esoterica-masonic.def -- Freemasonry
+%% Copyright (c) 2026 Sigilante. Released under the MIT License; see LICENSE.
+%%
+%% Glyphs are drawn on a grid with x from 0 to width and y from 0 to 1.
+%% Strokes inherit the package line width; see the manual for conventions.
+\ProvidesFile{esoterica-masonic.def}[2026-09-13 v0.1.0 esoterica: Freemasonry]
+
+\DeclareEsotericTradition{masonic}{
+  name   = Freemasonry,
+  prefix = Masonic,
+}
+
+\DeclareEsotericGlyph{masonic}{SquareAndCompasses}{
+  description = {Square and compasses},
+  draw = {
+    % compasses: hinge at the top, legs spread downward
+    \draw (0.14,0.06) -- (0.5,0.88) -- (0.86,0.06);
+    \fill (0.5,0.9) circle[radius=0.065];
+    % square: right angle at the bottom, arms rising at 45 degrees
+    \draw (0.07,0.51) -- (0.5,0.08) -- (0.93,0.51);
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{PointWithinCircle}{
+  description = {Point within a circle between two parallel lines},
+  draw = {
+    \draw (0.5,0.47) circle[radius=0.27];
+    \fill (0.5,0.47) circle[radius=0.06];
+    \draw (0.09,0.1) -- (0.09,0.84);
+    \draw (0.91,0.1) -- (0.91,0.84);
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{Level}{
+  description = {The level (Senior Warden)},
+  draw = {
+    \draw (0.06,0.06) -- (0.94,0.06);
+    \draw (0.14,0.06) -- (0.5,0.9) -- (0.86,0.06);
+    \draw (0.5,0.9) -- (0.5,0.36);
+    \fill (0.5,0.3) circle[radius=0.065];
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{Trowel}{
+  description = {The trowel},
+  draw = {
+    % pointing blade seen from above, tip at lower left
+    \draw (0.08,0.08) -- (0.42,0.68) -- (0.68,0.42) -- cycle;
+    \draw (0.55,0.55) -- (0.72,0.72);
+    % handle along the same diagonal
+    \filldraw (0.68,0.77) -- (0.85,0.94) -- (0.94,0.85) -- (0.77,0.68) -- cycle;
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{Gavel}{
+  description = {The common gavel},
+  draw = {
+    % tilted like a hammer at rest; head has a flat face at left and
+    % tapers to a cutting edge at right
+    \begin{scope}[rotate around={-30:(0.5,0.45)}]
+      \filldraw (0.2,0.6) -- (0.2,0.84) -- (0.58,0.84) -- (0.8,0.77)
+        -- (0.8,0.67) -- (0.58,0.6) -- cycle;
+      \draw (0.45,0.6) -- (0.45,-0.02);
+    \end{scope}
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{Square}{
+  description = {The square},
+  width = 0.8,
+  draw = {
+    % drawn as a flat carpenter's square so it does not read as a letter
+    \draw (0.07,0.9) -- (0.07,0.08) -- (0.73,0.08) -- (0.73,0.22)
+      -- (0.21,0.22) -- (0.21,0.9) -- cycle;
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{Compasses}{
+  description = {The compasses},
+  draw = {
+    % legs taper from the hinge to their points; a knob sits on the hinge
+    % (a crossbar or arc between the legs makes it read as a letter A)
+    \filldraw (0.465,0.84) -- (0.535,0.84) -- (0.16,0.06) -- cycle;
+    \filldraw (0.465,0.84) -- (0.535,0.84) -- (0.84,0.06) -- cycle;
+    \fill (0.5,0.84) circle[radius=0.09];
+    \draw (0.5,0.9) -- (0.5,0.96);
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{Plumb}{
+  description = {The plumb rule (Junior Warden)},
+  width = 0.6,
+  draw = {
+    \draw (0.07,0.06) rectangle (0.53,0.92);
+    \draw (0.3,0.84) -- (0.3,0.36);
+    \fill (0.3,0.28) circle[radius=0.07];
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{Chisel}{
+  description = {The chisel},
+  draw = {
+    % cutting edge at lower left, shank widening to it, handle at upper right
+    \draw (0.08,0.2) -- (0.2,0.08) -- (0.53,0.47) -- (0.47,0.53) -- cycle;
+    \filldraw (0.5,0.62) -- (0.62,0.5) -- (0.96,0.84) -- (0.84,0.96) -- cycle;
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{Skirret}{
+  description = {The skirret},
+  draw = {
+    % spiked spindle carrying a reel, with the line paying out to the right
+    \draw (0.35,0.92) -- (0.35,0.2);
+    \fill (0.29,0.22) -- (0.41,0.22) -- (0.35,0.04) -- cycle;
+    \draw (0.35,0.64) circle[radius=0.18];
+    \fill (0.35,0.64) circle[radius=0.05];
+    \draw (0.53,0.64) .. controls (0.7,0.56) and (0.82,0.32) .. (0.92,0.1);
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{Pencil}{
+  description = {The pencil},
+  draw = {
+    % body along the diagonal, sharpened to a leaded point at lower left
+    \draw (0.1,0.1) -- (0.36,0.24) -- (0.92,0.8) -- (0.8,0.92) -- (0.24,0.36)
+      -- cycle;
+    \draw (0.24,0.36) -- (0.36,0.24);
+    \draw (0.7,0.82) -- (0.82,0.7);
+    \fill (0.1,0.1) -- (0.15,0.19) -- (0.19,0.15) -- cycle;
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{TwentyFourInchGauge}{
+  description = {The twenty-four-inch gauge, in three parts of eight},
+  width = 1.6,
+  draw = {
+    \draw (0.07,0.24) rectangle (1.53,0.56);
+    \draw (0.557,0.24) -- (0.557,0.56);
+    \draw (1.043,0.24) -- (1.043,0.56);
+    \foreach \x in {0.313,0.8,1.287}
+      \draw (\x,0.24) -- (\x,0.4);
+  },
+}
+
+% Aprons follow English Craft usage: the Entered Apprentice wears the flap
+% raised, the Fellowcraft adds two rosettes, and the Master Mason adds a
+% border and a third rosette on the flap.  All share one outline: the body is
+% x in [0.2,1.0], y in [0.08,0.66], and the waistband runs past it as ties.
+
+\DeclareEsotericGlyph{masonic}{Apron}{
+  description = {Apron},
+  width = 1.2,
+  draw = {
+    \draw (0.07,0.66) -- (1.13,0.66);
+    \draw (0.2,0.66) -- (0.2,0.08) -- (1.0,0.08) -- (1.0,0.66);
+    \draw (0.2,0.66) -- (0.6,0.42) -- (1.0,0.66);
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{ApronEnteredApprentice}{
+  description = {Entered Apprentice apron, flap raised},
+  width = 1.2,
+  draw = {
+    \draw (0.07,0.66) -- (1.13,0.66);
+    \draw (0.2,0.66) -- (0.2,0.08) -- (1.0,0.08) -- (1.0,0.66);
+    \draw (0.2,0.66) -- (0.6,0.9) -- (1.0,0.66);
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{ApronFellowcraft}{
+  description = {Fellowcraft apron, two rosettes},
+  width = 1.2,
+  draw = {
+    \draw (0.07,0.66) -- (1.13,0.66);
+    \draw (0.2,0.66) -- (0.2,0.08) -- (1.0,0.08) -- (1.0,0.66);
+    \draw (0.2,0.66) -- (0.6,0.42) -- (1.0,0.66);
+    \fill (0.4,0.24) circle[radius=0.07];
+    \fill (0.8,0.24) circle[radius=0.07];
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{ApronMasterMason}{
+  description = {Master Mason apron, border and three rosettes},
+  width = 1.2,
+  draw = {
+    \draw (0.07,0.66) -- (1.13,0.66);
+    \draw (0.2,0.66) -- (0.2,0.08) -- (1.0,0.08) -- (1.0,0.66);
+    \draw (0.2,0.66) -- (0.6,0.42) -- (1.0,0.66);
+    \draw (0.31,0.58) -- (0.31,0.19) -- (0.89,0.19) -- (0.89,0.58);
+    \fill (0.46,0.3) circle[radius=0.06];
+    \fill (0.74,0.3) circle[radius=0.06];
+    \fill (0.6,0.55) circle[radius=0.06];
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{OpenBible}{
+  description = {Open Bible (Volume of the Sacred Law)},
+  width = 1.1,
+  draw = {
+    % two pages curving down into the spine at x=0.55
+    \draw (0.55,0.72) .. controls (0.42,0.86) and (0.22,0.86) .. (0.07,0.8)
+      -- (0.07,0.2) .. controls (0.22,0.26) and (0.42,0.26) .. (0.55,0.12)
+      -- cycle;
+    \draw (0.55,0.72) .. controls (0.68,0.86) and (0.88,0.86) .. (1.03,0.8)
+      -- (1.03,0.2) .. controls (0.88,0.26) and (0.68,0.26) .. (0.55,0.12);
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{AllSeeingEye}{
+  description = {All-seeing eye in a radiant triangle},
+  width = 1.24,
+  draw = {
+    % triangle centred on (0.62,0.33), rays in the upper half only
+    \draw (0.22,0.1) -- (1.02,0.1) -- (0.62,0.79) -- cycle;
+    \draw (0.43,0.33) .. controls (0.52,0.45) and (0.72,0.45) .. (0.81,0.33)
+      .. controls (0.72,0.21) and (0.52,0.21) .. cycle;
+    \fill (0.62,0.33) circle[radius=0.06];
+    \foreach \a in {20,43,67,90,113,137,160}
+      \draw ([shift={(\a:0.52)}]0.62,0.33) -- ([shift={(\a:0.62)}]0.62,0.33);
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{EyeAbovePyramid}{
+  description = {Eye of Providence above the unfinished pyramid
+    (Novus Ordo Seclorum)},
+  width = 1.2,
+  draw = {
+    % unfinished pyramid with two courses of stone
+    \draw (0.1,0.08) -- (1.1,0.08) -- (0.82,0.5) -- (0.38,0.5) -- cycle;
+    \draw (0.19,0.22) -- (1.01,0.22);
+    \draw (0.29,0.36) -- (0.91,0.36);
+    % capstone on the same slope, holding the eye, with its glory
+    \draw (0.43,0.58) -- (0.77,0.58) -- (0.6,0.83) -- cycle;
+    \draw[line width=0.6\pgflinewidth]
+      (0.52,0.67) .. controls (0.56,0.72) and (0.64,0.72) .. (0.68,0.67)
+      .. controls (0.64,0.62) and (0.56,0.62) .. cycle;
+    \fill (0.6,0.67) circle[radius=0.035];
+    \foreach \a in {20,50,90,130,160}
+      \draw ([shift={(\a:0.24)}]0.6,0.663) -- ([shift={(\a:0.3)}]0.6,0.663);
+  },
+}
+
+\DeclareEsotericGlyph{masonic}{Tripunctual}{
+  description = {Tripunctual abbreviation mark},
+  unicode     = 2234,
+  width       = 0.7,
+  draw = {
+    % bottom dots sit on the baseline (y=0.1); the top dot reaches x-height
+    \fill (0.12,0.17) circle[radius=0.07];
+    \fill (0.58,0.17) circle[radius=0.07];
+    \fill (0.35,0.57) circle[radius=0.07];
+  },
+}
+
+% ---------------------------------------------------------------------------
+% Royal Arch cipher
+%
+%    A | B | C         \ J /        N.| O.| P.        \ W./
+%   ---+---+---       K  X  L      ---+---+---       X.  X  .Y
+%    D | E | F         / M \        Q.| R.| S.        / Z.\
+%   ---+---+---                    ---+---+---
+%    G | H | I                      T.| U.| V.
+%
+% Every letter is the walls of its cell.  The frame is x in [0.07,0.83],
+% y in [0.1,0.86]: letters sit on the baseline and stop short of cap height.
+
+\DeclareEsotericGlyph{masonic}{RoyalArchA}{
+  description = {Royal Arch cipher A},
+  width = 0.9,
+  draw = {\draw (0.83,0.86) -- (0.83,0.1) -- (0.07,0.1);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchB}{
+  description = {Royal Arch cipher B},
+  width = 0.9,
+  draw = {\draw (0.07,0.86) -- (0.07,0.1) -- (0.83,0.1) -- (0.83,0.86);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchC}{
+  description = {Royal Arch cipher C},
+  width = 0.9,
+  draw = {\draw (0.07,0.86) -- (0.07,0.1) -- (0.83,0.1);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchD}{
+  description = {Royal Arch cipher D},
+  width = 0.9,
+  draw = {\draw (0.07,0.86) -- (0.83,0.86) -- (0.83,0.1) -- (0.07,0.1);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchE}{
+  description = {Royal Arch cipher E},
+  width = 0.9,
+  draw = {\draw (0.07,0.1) rectangle (0.83,0.86);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchF}{
+  description = {Royal Arch cipher F},
+  width = 0.9,
+  draw = {\draw (0.83,0.86) -- (0.07,0.86) -- (0.07,0.1) -- (0.83,0.1);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchG}{
+  description = {Royal Arch cipher G},
+  width = 0.9,
+  draw = {\draw (0.07,0.86) -- (0.83,0.86) -- (0.83,0.1);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchH}{
+  description = {Royal Arch cipher H},
+  width = 0.9,
+  draw = {\draw (0.07,0.1) -- (0.07,0.86) -- (0.83,0.86) -- (0.83,0.1);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchI}{
+  description = {Royal Arch cipher I},
+  width = 0.9,
+  draw = {\draw (0.83,0.86) -- (0.07,0.86) -- (0.07,0.1);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchJ}{
+  description = {Royal Arch cipher J},
+  width = 0.9,
+  draw = {\draw (0.07,0.86) -- (0.45,0.1) -- (0.83,0.86);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchK}{
+  description = {Royal Arch cipher K},
+  width = 0.9,
+  draw = {\draw (0.07,0.86) -- (0.83,0.48) -- (0.07,0.1);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchL}{
+  description = {Royal Arch cipher L},
+  width = 0.9,
+  draw = {\draw (0.83,0.86) -- (0.07,0.48) -- (0.83,0.1);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchM}{
+  description = {Royal Arch cipher M},
+  width = 0.9,
+  draw = {\draw (0.07,0.1) -- (0.45,0.86) -- (0.83,0.1);},
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchN}{
+  description = {Royal Arch cipher N},
+  width = 0.9,
+  draw = {
+    \draw (0.83,0.86) -- (0.83,0.1) -- (0.07,0.1);
+    \fill (0.45,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchO}{
+  description = {Royal Arch cipher O},
+  width = 0.9,
+  draw = {
+    \draw (0.07,0.86) -- (0.07,0.1) -- (0.83,0.1) -- (0.83,0.86);
+    \fill (0.45,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchP}{
+  description = {Royal Arch cipher P},
+  width = 0.9,
+  draw = {
+    \draw (0.07,0.86) -- (0.07,0.1) -- (0.83,0.1);
+    \fill (0.45,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchQ}{
+  description = {Royal Arch cipher Q},
+  width = 0.9,
+  draw = {
+    \draw (0.07,0.86) -- (0.83,0.86) -- (0.83,0.1) -- (0.07,0.1);
+    \fill (0.45,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchR}{
+  description = {Royal Arch cipher R},
+  width = 0.9,
+  draw = {
+    \draw (0.07,0.1) rectangle (0.83,0.86);
+    \fill (0.45,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchS}{
+  description = {Royal Arch cipher S},
+  width = 0.9,
+  draw = {
+    \draw (0.83,0.86) -- (0.07,0.86) -- (0.07,0.1) -- (0.83,0.1);
+    \fill (0.45,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchT}{
+  description = {Royal Arch cipher T},
+  width = 0.9,
+  draw = {
+    \draw (0.07,0.86) -- (0.83,0.86) -- (0.83,0.1);
+    \fill (0.45,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchU}{
+  description = {Royal Arch cipher U},
+  width = 0.9,
+  draw = {
+    \draw (0.07,0.1) -- (0.07,0.86) -- (0.83,0.86) -- (0.83,0.1);
+    \fill (0.45,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchV}{
+  description = {Royal Arch cipher V},
+  width = 0.9,
+  draw = {
+    \draw (0.83,0.86) -- (0.07,0.86) -- (0.07,0.1);
+    \fill (0.45,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchW}{
+  description = {Royal Arch cipher W},
+  width = 0.9,
+  draw = {
+    \draw (0.07,0.86) -- (0.45,0.1) -- (0.83,0.86);
+    \fill (0.45,0.61) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchX}{
+  description = {Royal Arch cipher X},
+  width = 0.9,
+  draw = {
+    \draw (0.07,0.86) -- (0.83,0.48) -- (0.07,0.1);
+    \fill (0.32,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchY}{
+  description = {Royal Arch cipher Y},
+  width = 0.9,
+  draw = {
+    \draw (0.83,0.86) -- (0.07,0.48) -- (0.83,0.1);
+    \fill (0.58,0.48) circle[radius=0.065];
+  },
+}
+\DeclareEsotericGlyph{masonic}{RoyalArchZ}{
+  description = {Royal Arch cipher Z},
+  width = 0.9,
+  draw = {
+    \draw (0.07,0.1) -- (0.45,0.86) -- (0.83,0.1);
+    \fill (0.45,0.35) circle[radius=0.065];
+  },
+}
+
+\DeclareEsotericScript{royalarch}{
+  A = masonic/RoyalArchA, B = masonic/RoyalArchB, C = masonic/RoyalArchC,
+  D = masonic/RoyalArchD, E = masonic/RoyalArchE, F = masonic/RoyalArchF,
+  G = masonic/RoyalArchG, H = masonic/RoyalArchH, I = masonic/RoyalArchI,
+  J = masonic/RoyalArchJ, K = masonic/RoyalArchK, L = masonic/RoyalArchL,
+  M = masonic/RoyalArchM, N = masonic/RoyalArchN, O = masonic/RoyalArchO,
+  P = masonic/RoyalArchP, Q = masonic/RoyalArchQ, R = masonic/RoyalArchR,
+  S = masonic/RoyalArchS, T = masonic/RoyalArchT, U = masonic/RoyalArchU,
+  V = masonic/RoyalArchV, W = masonic/RoyalArchW, X = masonic/RoyalArchX,
+  Y = masonic/RoyalArchY, Z = masonic/RoyalArchZ,
+}
+
+\endinput

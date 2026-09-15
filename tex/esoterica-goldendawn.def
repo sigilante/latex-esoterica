@@ -1,0 +1,333 @@
+%% esoterica-goldendawn.def -- Hermetic Order of the Golden Dawn
+%% Copyright (c) 2026 Sigilante. Released under the MIT License; see LICENSE.
+%%
+%% Glyphs are drawn on a grid with x from 0 to width and y from 0 to 1.
+%% Strokes inherit the package line width; see the manual for conventions.
+\ProvidesFile{esoterica-goldendawn.def}[2026-09-13 v0.1.0 esoterica: Golden Dawn]
+
+\DeclareEsotericTradition{goldendawn}{
+  name   = Golden Dawn,
+  prefix = GoldenDawn,
+}
+
+% Elemental triangles share one equilateral frame: y from 0.06 to 0.82.
+
+\DeclareEsotericGlyph{goldendawn}{Fire}{
+  description = {Elemental fire},
+  unicode     = 1F702,
+  draw = {
+    \draw (0.0612,0.06) -- (0.9388,0.06) -- (0.5,0.82) -- cycle;
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{Air}{
+  description = {Elemental air},
+  unicode     = 1F701,
+  draw = {
+    \draw (0.0612,0.06) -- (0.9388,0.06) -- (0.5,0.82) -- cycle;
+    \draw (0.14,0.44) -- (0.86,0.44);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{Water}{
+  description = {Elemental water},
+  unicode     = 1F704,
+  draw = {
+    \draw (0.0612,0.82) -- (0.9388,0.82) -- (0.5,0.06) -- cycle;
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{Earth}{
+  description = {Elemental earth},
+  unicode     = 1F703,
+  draw = {
+    \draw (0.0612,0.82) -- (0.9388,0.82) -- (0.5,0.06) -- cycle;
+    \draw (0.14,0.44) -- (0.86,0.44);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{Pentagram}{
+  description = {Pentagram, point upward},
+  unicode     = 26E4,
+  draw = {
+    \draw[shift={(0.5,0.47)}]
+      (90:0.48) -- (234:0.48) -- (18:0.48) -- (162:0.48) -- (306:0.48) -- cycle;
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{Hexagram}{
+  description = {Hexagram of two interlaced triangles},
+  width = 0.9,
+  draw = {
+    \begin{scope}[shift={(0.45,0.47)}]
+      \draw (90:0.46) -- (210:0.46) -- (330:0.46) -- cycle;
+      \draw (270:0.46) -- (30:0.46) -- (150:0.46) -- cycle;
+    \end{scope}
+  },
+}
+
+% ---------------------------------------------------------------------------
+% Enochian alphabet
+%
+% Letter names follow the Golden Dawn spellings.  Forms were traced from a
+% Golden Dawn letter table: each letter sits on the baseline (y=0.1) and
+% reaches about 0.92, with serifs as short strokes.  The enochian script maps
+% Latin letters to glyphs, sharing Ve (C, K), Gon (I, J, Y) and Vau (U, V, W).
+
+\DeclareEsotericGlyph{goldendawn}{EnochianUn}{
+  description = {Enochian letter Un (A)},
+  width = 0.68,
+  draw = {
+    \draw (0.07,0.11) -- (0.59,0.62) -- (0.4,0.89);
+    \draw (0.25,0.81) -- (0.25,0.89) -- (0.6,0.89) -- (0.61,0.81);
+    \draw (0.08,0.34) -- (0.31,0.12);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianPe}{
+  description = {Enochian letter Pe (B)},
+  width = 0.88,
+  draw = {
+    \draw (0.07,0.89) -- (0.23,0.89);
+    \draw (0.15,0.89) -- (0.42,0.08) -- (0.63,0.66);
+    \draw plot[smooth] coordinates {(0.63,0.66) (0.78,0.71) (0.81,0.81) (0.74,0.88) (0.59,0.87)};
+    \draw (0.59,0.87) -- (0.59,0.81);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianVe}{
+  description = {Enochian letter Ve (C, K)},
+  width = 0.76,
+  draw = {
+    \draw (0.16,0.92) -- (0.16,0.1);
+    \draw (0.08,0.92) -- (0.24,0.92);
+    \draw (0.07,0.1) -- (0.25,0.1);
+    \draw plot[smooth] coordinates {(0.34,0.9) (0.57,0.91) (0.69,0.77) (0.65,0.59) (0.5,0.52)};
+    \draw (0.41,0.52) -- (0.5,0.52);
+    \draw plot[smooth] coordinates {(0.5,0.52) (0.67,0.41) (0.69,0.22) (0.55,0.1) (0.37,0.11) (0.27,0.23) (0.33,0.31)};
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianGal}{
+  description = {Enochian letter Gal (D)},
+  width = 0.87,
+  draw = {
+    \draw (0.07,0.78) -- (0.07,0.91);
+    \draw plot[smooth] coordinates {(0.07,0.91) (0.35,0.88) (0.51,0.73)};
+    \draw (0.51,0.73) -- (0.74,0.93);
+    \draw (0.51,0.73) -- (0.51,0.37);
+    \draw plot[smooth] coordinates {(0.51,0.37) (0.31,0.22) (0.08,0.16)};
+    \draw (0.08,0.16) -- (0.08,0.3);
+    \draw plot[smooth] coordinates {(0.51,0.37) (0.63,0.22) (0.8,0.17)};
+    \draw (0.8,0.17) -- (0.8,0.31);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianGraph}{
+  description = {Enochian letter Graph (E)},
+  width = 0.86,
+  draw = {
+    \draw (0.07,0.79) -- (0.07,0.92) -- (0.67,0.92) -- (0.67,0.1);
+    \draw (0.54,0.1) -- (0.79,0.1);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianOrth}{
+  description = {Enochian letter Orth (F)},
+  width = 0.9,
+  draw = {
+    \draw (0.07,0.13) -- (0.76,0.77);
+    \fill (0.83,0.83) -- (0.64,0.77) -- (0.75,0.66) -- cycle;
+    \draw (0.26,0.62) -- (0.21,0.72) -- (0.7,0.73);
+    \draw (0.57,0.6) -- (0.69,0.49);
+    \draw (0.39,0.43) -- (0.49,0.28);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianGed}{
+  description = {Enochian letter Ged (G)},
+  width = 0.84,
+  draw = {
+    \draw (0.07,0.91) -- (0.31,0.91);
+    \draw plot[smooth] coordinates {(0.18,0.91) (0.19,0.53) (0.29,0.23) (0.49,0.12) (0.7,0.19) (0.77,0.39) (0.65,0.55) (0.46,0.56)};
+    \draw (0.46,0.56) -- (0.45,0.48);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianNaHath}{
+  description = {Enochian letter NaHath (H)},
+  width = 0.82,
+  draw = {
+    \draw plot[smooth] coordinates {(0.29,0.05) (0.12,0.27) (0.07,0.55) (0.14,0.79) (0.27,0.86) (0.41,0.73)};
+    \draw plot[smooth] coordinates {(0.41,0.73) (0.54,0.86) (0.7,0.82) (0.75,0.57)};
+    \draw (0.75,0.4) -- (0.55,0.06);
+    \draw (0.28,0.46) -- (0.54,0.46);
+    \draw (0.41,0.73) -- (0.41,0.46);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianGon}{
+  description = {Enochian letter Gon (I, J, Y)},
+  width = 0.84,
+  draw = {
+    \draw (0.07,0.8) -- (0.07,0.92) -- (0.53,0.92) -- (0.53,0.1) -- (0.77,0.1) -- (0.77,0.2);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianUr}{
+  description = {Enochian letter Ur (L)},
+  width = 0.73,
+  draw = {
+    \draw (0.66,0.84) -- (0.66,0.72);
+    \draw plot[smooth] coordinates {(0.66,0.79) (0.42,0.78) (0.24,0.57) (0.22,0.32) (0.41,0.1) (0.66,0.1)};
+    \draw (0.66,0.18) -- (0.66,0.08);
+    \draw (0.07,0.54) -- (0.23,0.54);
+    \draw (0.07,0.34) -- (0.22,0.34);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianTal}{
+  description = {Enochian letter Tal (M)},
+  width = 0.77,
+  draw = {
+    \draw (0.46,0.9) -- (0.46,0.81);
+    \draw plot[smooth] coordinates {(0.46,0.9) (0.15,0.9) (0.09,0.69) (0.21,0.58)};
+    \draw plot[smooth] coordinates {(0.21,0.58) (0.07,0.41) (0.09,0.2) (0.25,0.1) (0.5,0.1) (0.7,0.33)};
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianDrun}{
+  description = {Enochian letter Drun (N)},
+  width = 0.75,
+  draw = {
+    \draw (0.07,0.71) -- (0.07,0.87);
+    \draw plot[smooth] coordinates {(0.07,0.85) (0.32,0.85) (0.55,0.68) (0.62,0.51) (0.56,0.28) (0.32,0.1) (0.07,0.1)};
+    \draw (0.07,0.24) -- (0.07,0.08);
+    \draw (0.49,0.53) -- (0.68,0.54);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianMed}{
+  description = {Enochian letter Med (O)},
+  width = 0.72,
+  draw = {
+    \draw (0.29,0.96) -- (0.47,0.96);
+    \draw (0.39,0.96) -- (0.36,0.48) -- (0.07,0.13) -- (0.65,0.36);
+    \draw (0.65,0.37) -- (0.65,0.22);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianMals}{
+  description = {Enochian letter Mals (P)},
+  width = 0.87,
+  draw = {
+    \draw plot[smooth] coordinates {(0.17,0.14) (0.09,0.37) (0.1,0.69) (0.26,0.9) (0.44,0.95) (0.62,0.9) (0.77,0.69) (0.77,0.37) (0.62,0.14)};
+    \draw (0.07,0.14) -- (0.26,0.14);
+    \draw (0.57,0.14) -- (0.8,0.14);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianGer}{
+  description = {Enochian letter Ger (Q)},
+  width = 0.88,
+  draw = {
+    \draw (0.07,0.83) -- (0.07,0.96) -- (0.32,0.96);
+    \draw (0.27,0.96) -- (0.27,0.14);
+    \draw (0.58,0.96) -- (0.81,0.96) -- (0.81,0.83);
+    \draw (0.63,0.96) -- (0.63,0.14);
+    \draw (0.14,0.14) -- (0.72,0.14);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianDon}{
+  description = {Enochian letter Don (R)},
+  width = 0.72,
+  draw = {
+    \draw plot[smooth] coordinates {(0.39,0.86) (0.29,0.95) (0.15,0.94) (0.07,0.79) (0.19,0.62)};
+    \draw (0.19,0.62) -- (0.42,0.62) -- (0.58,0.44);
+    \draw plot[smooth] coordinates {(0.19,0.62) (0.08,0.47) (0.09,0.26) (0.21,0.12) (0.44,0.12) (0.65,0.28)};
+    \draw (0.65,0.28) -- (0.65,0.12);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianFam}{
+  description = {Enochian letter Fam (S)},
+  width = 0.88,
+  draw = {
+    \draw (0.08,0.73) -- (0.07,0.9) -- (0.61,0.9);
+    \draw plot[smooth] coordinates {(0.6,0.9) (0.61,0.61) (0.66,0.33) (0.81,0.1)};
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianGisa}{
+  description = {Enochian letter Gisa (T)},
+  width = 0.64,
+  draw = {
+    \draw plot[smooth] coordinates {(0.57,0.92) (0.49,0.55) (0.3,0.29) (0.07,0.12)};
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianVau}{
+  description = {Enochian letter Vau (U, V, W)},
+  width = 0.86,
+  draw = {
+    \draw (0.27,0.82) -- (0.27,0.92);
+    \draw plot[smooth] coordinates {(0.27,0.92) (0.51,0.91) (0.68,0.73) (0.71,0.53)};
+    \draw (0.71,0.53) -- (0.71,0.1);
+    \draw (0.62,0.1) -- (0.79,0.1);
+    \draw plot[smooth] coordinates {(0.71,0.52) (0.49,0.58) (0.29,0.44) (0.19,0.21) (0.15,0.1)};
+    \draw (0.07,0.1) -- (0.25,0.1);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianPal}{
+  description = {Enochian letter Pal (X)},
+  width = 0.8,
+  draw = {
+    \draw (0.17,0.1) -- (0.17,0.92) -- (0.73,0.92) -- (0.73,0.82);
+    \draw (0.07,0.1) -- (0.27,0.1);
+  },
+}
+
+\DeclareEsotericGlyph{goldendawn}{EnochianCeph}{
+  description = {Enochian letter Ceph (Z)},
+  width = 0.8,
+  draw = {
+    \draw (0.07,0.76) -- (0.07,0.9) -- (0.39,0.9);
+    \draw (0.39,0.9) -- (0.39,0.1);
+    \draw (0.28,0.1) -- (0.5,0.1);
+    \draw plot[smooth] coordinates {(0.39,0.9) (0.6,0.88) (0.73,0.69) (0.68,0.51) (0.55,0.4)};
+    \draw (0.55,0.4) -- (0.07,0.4) -- (0.07,0.53);
+  },
+}
+
+\DeclareEsotericScript{enochian}{
+  A = goldendawn/EnochianUn,
+  B = goldendawn/EnochianPe,
+  C = goldendawn/EnochianVe,
+  K = goldendawn/EnochianVe,
+  D = goldendawn/EnochianGal,
+  E = goldendawn/EnochianGraph,
+  F = goldendawn/EnochianOrth,
+  G = goldendawn/EnochianGed,
+  H = goldendawn/EnochianNaHath,
+  I = goldendawn/EnochianGon,
+  J = goldendawn/EnochianGon,
+  Y = goldendawn/EnochianGon,
+  L = goldendawn/EnochianUr,
+  M = goldendawn/EnochianTal,
+  N = goldendawn/EnochianDrun,
+  O = goldendawn/EnochianMed,
+  P = goldendawn/EnochianMals,
+  Q = goldendawn/EnochianGer,
+  R = goldendawn/EnochianDon,
+  S = goldendawn/EnochianFam,
+  T = goldendawn/EnochianGisa,
+  U = goldendawn/EnochianVau,
+  V = goldendawn/EnochianVau,
+  W = goldendawn/EnochianVau,
+  X = goldendawn/EnochianPal,
+  Z = goldendawn/EnochianCeph,
+}
+
+\endinput
